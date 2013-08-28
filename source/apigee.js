@@ -32,6 +32,15 @@ var Usergrid = (function(){
   Usergrid = Usergrid || {};
   Usergrid.USERGRID_SDK_VERSION = '0.10.06';
 
+  function isOKToSave(error, getOnExist) {
+    return (( error && ('service_resource_not_found' === error ||
+                      'no_name_specified' === error ||
+                      'null_pointer' === error ||
+                      'cannot fetch entity, no name specified' === error ||
+                      'cannot fetch entity, no username specified' === error ) ) ||
+            (!error && getOnExist));
+  }
+
   Usergrid.Client = function(options) {
     //usergrid enpoint
     this.URI = options.URI || 'https://api.usergrid.com';
@@ -205,7 +214,7 @@ var Usergrid = (function(){
 
     var group = new Usergrid.Group(options);
     group.fetch(function(err, data){
-      var okToSave = (err && 'service_resource_not_found' === data.error || 'null_pointer' === data.error) || (!err && getOnExist);
+    var okToSave = isOKToSave(err, getOnExist);
       if (okToSave) {
         group.save(function(err, data){
           if (typeof(callback) === 'function') {
@@ -254,7 +263,7 @@ var Usergrid = (function(){
     var entity = new Usergrid.Entity(options);
     entity.fetch(function(err, data) {
       //if the fetch doesn't find what we are looking for, or there is no error, do a save
-      var okToSave = (err && 'service_resource_not_found' === data.error || 'no_name_specified' === data.error || 'null_pointer' === data.error) || (!err && getOnExist);
+      var okToSave = isOKToSave(err, getOnExist);
       if(okToSave) {
         entity.set(options.data); //add the data again just in case
         entity.save(function(err, data) {
@@ -1025,7 +1034,7 @@ var Usergrid = (function(){
             if (self._client.logging) {
               console.log(error);
             }
-            return callback(true, error, self)
+            return callback(error, null)
           }
         }
       } else {
@@ -1037,7 +1046,7 @@ var Usergrid = (function(){
             if (self._client.logging) {
               console.log(error);
             }
-            return callback(true, error, self)
+            return callback(error, null)
           }
         }
       }

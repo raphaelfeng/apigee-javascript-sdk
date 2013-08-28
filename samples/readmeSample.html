@@ -16,13 +16,17 @@
             // Reading data
             var books = new Apigee.Collection({ "client":client, "type":"books" });
             books.fetch(
-                function() { // Success
-                    while(books.hasNextEntity()) {
-                        var book = books.getNextEntity();
-                        alert(book.get("title")); // Output the title of the book
+               function(err, data) {
+                    if (!err) {
+                        // Success
+                        while(books.hasNextEntity()) {
+                            var book = books.getNextEntity();
+                            alert(book.get("title")); // Output the title of the book
+                        }
+                    } else {
+                        // Failure
+                        alert("read failed");
                     }
-                }, function() { // Failure
-                    alert("read failed");
                 }
             );
 
